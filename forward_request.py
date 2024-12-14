@@ -18,7 +18,6 @@ def get_random_server():
 def search(column):
     query_value = request.args.get('value')
     match_type = request.args.get('match_type', default='partial')
-    
     if not query_value:
         return jsonify({"error": "Search value is required"}), 400
 
