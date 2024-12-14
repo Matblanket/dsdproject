@@ -8,7 +8,7 @@ import requests
 app = Flask(__name__)
 
 url = "https://dsdproject.documents.azure.com:443/"
-key = "LDcZZqVhctW4aImG7LY4itVAB0Leffo9OSr09vW756B6YdFWROUbzEPrwIEjcfOZZKL0dhQ4iE0RACDb7xeJpA=="
+key = ""
 client = CosmosClient(url, credential=key)
 
 database_name = "ToDoList"
