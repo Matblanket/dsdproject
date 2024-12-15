@@ -2,6 +2,7 @@ import threading
 import queue
 import time
 import os
+print(os.getenv('PRIVATE_KEY'))
 import redis
 from flask import Flask, request, jsonify
 from azure.cosmos import CosmosClient

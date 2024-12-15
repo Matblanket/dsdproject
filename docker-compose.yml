@@ -1,0 +1,54 @@
+version: '3.12'
+
+services:
+  master:
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    container_name: master-container
+    ports:
+      - "2222:22"  
+      - "49153:50001"
+    volumes:
+      - .:/test  
+    networks:
+      - dsd
+    shm_size: 2GB
+    hostname: master-container
+    command: /bin/bash -c "python3 /test/forward_request.py && tail -f /dev/null" 
+
+  server_1:
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    container_name: server-1
+    ports:
+      - "2223:22"  
+      - "49154:50001"
+    networks:
+      - dsd
+    volumes:
+      - .:/test  
+    shm_size: 2GB
+    hostname: server-1
+    command: /bin/bash -c "python3 /test/diff_api.py && tail -f /dev/null"
+
+  server_2:
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    container_name: server-2
+    ports:
+      - "2224:22"  
+      - "49155:50001"
+    networks:
+      - dsd
+    volumes:
+      - .:/test  
+    shm_size: 2GB
+    hostname: server-2
+    command: /bin/bash -c "python3 /test/diff_api.py && tail -f /dev/null"
+
+networks:
+  dsd:
+    driver: bridge
