@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} - Wikibooks Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.night-mode {
+            background-color: #333;          
+            color: #bbbbbb;   
+
+        }
+        #book-content {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .resizable {
+            font-size: 18px;
+        }
+        button {
+            margin: 10px 5px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading...</div>
+    <button onclick="toggleTheme()">Toggle Night Mode</button>
+    <button onclick="resizeText('increase')">A+</button>
+    <button onclick="resizeText('decrease')">A-</button>
+    <div id="book-content" class="resizable">
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('night-mode');
+        }
+
+        function resizeText(action) {
+            const bookContent = document.getElementById('book-content');
+            const currentFontSize = parseFloat(window.getComputedStyle(bookContent).fontSize);
+            const newFontSize = action === 'increase' ? currentFontSize * 1.1 : currentFontSize / 1.1;
+            bookContent.style.fontSize = newFontSize + 'px';
+        }
+        function fetchBookContent() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('book_id');
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('book-content').innerHTML = '';
+            if (bookId) {
+                const apiUrl = `http://20.55.53.44:49153/book/${bookId}`;
+                console.log('Fetching data from:', apiUrl);  
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('loading').style.display = 'none';
+
+                        if (data.error) {
+                            document.getElementById('book-content').innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                        } else if (data.length === 0) {
+                        document.getElementById('book-content').innerHTML = '<p>No results found.</p>';
+                        }
+                        else {
+                            let resultHTML = '<h3>Search Results:</h3>';
+                            data.forEach(item => {
+                            resultHTML += `
+                            <h2>${item.title}</h2>
+                            <h3>Abstract:</h3>
+                                <p>${item.abstract}</p>
+                                <h3>Content:</h3>
+                                <div>${item.body_html || item.body_text}</div>
+                            `;
+                        });
+                            document.getElementById('book-content').innerHTML = resultHTML;
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('book-content').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    });
+            }
+        }
+        window.onload = fetchBookContent;
+    </script>
+</body>
+</html>

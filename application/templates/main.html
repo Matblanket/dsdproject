@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            padding-top: 50px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 15px;
+            width: 200px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .card a:hover {
+            text-decoration: underline;
+        }
+
+        .card h3 {
+            margin: 10px 0;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #888;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the WikiBooks</h1>
+    
+    <div class="container">
+        <div class="card">
+            <h3>Search</h3>
+            <p>Search for books by title, abstract, or other attributes.</p>
+            <a href="book_search.html">Go to Search</a>
+        </div>
+        <div class="card">
+            <h3>Add Book</h3>
+            <p>Add books to the database.</p>
+            <a href="add_record.html">Add a book</a>
+        </div>
+        <div class="card">
+            <h3>Update Book</h3>
+            <p>Update record of a book.</p>
+            <a href="book_update.html">Go to Update</a>
+        </div>
+        <div class="card">
+            <h3>Signature</h3>
+            <p>Get signature of the book based on the body text.</p>
+            <a href="book_signature.html">Go to Signature</a>
+        </div>
+        <div class="card">
+            <h3>Summary</h3>
+            <p>Get frequent words in a book.</p>
+            <a href="book_summary.html">Go to Summary</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 DSD Project</p>
+    </footer>
+
+</body>
+</html>
