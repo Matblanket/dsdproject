@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input, .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+        #response {
+            margin-top: 20px;
+        }
+        .loading {
+            display: none;
+            font-size: 18px;
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Summarize the Book</h1>
+
+    <div class="form-container">
+        <h2>Search</h2>
+        <input type="text" id="value" placeholder="Enter title of the book">
+        <button onclick="submitSearch()">Summarize</button>
+        <div id="loading" class="loading">Loading...</div>
+        
+    </div>
+    <div id="response"></div>
+
+    <canvas id="wordStatsChart" width="400" height="200"></canvas>
+    
+    <!-- Load Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        let chartInstance = null;
+        function submitSearch() {
+            const value = document.getElementById('value').value;
+            const url = `http://20.55.53.44:49153/search/summary//title?value=${encodeURIComponent(value)}&match_type=exact`;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('response').innerHTML = '';
+            document.getElementById('wordStatsChart').style.display = 'none';
+            if (chartInstance) {
+            chartInstance.destroy(); 
+            chartInstance = null;
+            const ctx = document.getElementById("wordStatsChart").getContext("2d");
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        }
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    if (data.error) {
+                        document.getElementById('response').innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    } else {
+                        let resultHTML = '<h3>Word Frequency Results:</h3>';
+                        let allWords = [];
+                        let allFrequencies = [];
+                        for (const title in data.word_statistics) {
+                            const wordCounts = data.word_statistics[title];
+                            let orderedWordStats = Object.entries(wordCounts);
+                            orderedWordStats.sort((a, b) => b[1] - a[1]);
+                            console.log(orderedWordStats)
+                            orderedWordStats.forEach(([word, frequency]) => {
+                                allWords.push(word);
+                                allFrequencies.push(frequency);
+                            });
+                        }
+                        document.getElementById('wordStatsChart').style.display = 'block';
+                        const ctx = document.getElementById("wordStatsChart").getContext("2d");
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: allWords.slice(0, 50), 
+                                datasets: [{
+                                    label: 'Word Frequency',
+                                    data: allFrequencies.slice(0, 50), 
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+
+                        for (const title in data.word_statistics) {
+                            const wordCounts = data.word_statistics[title];
+                            let orderedWordStats = Object.entries(wordCounts);
+                            orderedWordStats.sort((a, b) => b[1] - a[1]);
+                            resultHTML += `
+                                <h4>Book Title: ${title}</h4>
+                                <div class="word-frequency-table">
+                                    <h4>Word Frequency for Book: ${title}</h4>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Word</th>
+                                                <th>Frequency</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            orderedWordStats.forEach(([word, frequency]) => {
+                                resultHTML += `
+                                    <tr>
+                                        <td>${word}</td>
+                                        <td>${frequency}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            resultHTML += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        }
+                        document.getElementById('response').innerHTML = resultHTML;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('response').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                });
+        }
+    </script>
+    
+</body>
+</html>

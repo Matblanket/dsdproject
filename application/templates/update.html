@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Record</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input, .form-container select, .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Update Record</h1>
+
+    <div class="form-container">
+        <form id="updateForm">
+            <label for="column">Select Column to Update:</label>
+            <select id="column" name="column" required>
+                <option value="">--Select a Column--</option>
+                <option value="title">Title</option>
+                <option value="url">URL</option>
+                <option value="abstract">Abstract</option>
+                <option value="body_text">Body Text</option>
+                <option value="body_html">Body Html</option>
+            </select>
+
+            <label for="new_value">New Value:</label>
+            <textarea id="new_value" name="new_value" required></textarea>
+
+            <button type="submit">Update Record</button>
+        </form>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const recordId = params.get("id");
+        document.getElementById("updateForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const columnSelect = document.getElementById("column");
+            const newValueTextarea = document.getElementById("new_value");
+
+            const selectedColumn = columnSelect.value;
+            const newValue = newValueTextarea.value;
+
+            if (!selectedColumn || !newValue) {
+                alert("Please select a column and provide a new value.");
+                return;
+            }
+
+            const updateData = {
+                id: recordId,  
+                column: selectedColumn,  
+                new_value: newValue  
+            };
+
+            fetch("http://20.55.53.44:49153/update_record", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updateData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Book updated successfully!");
+            })
+            .catch(error => {
+                alert("Error adding book: " + error.message);
+            });
+        });
+    </script>
+
+</body>
+</html>

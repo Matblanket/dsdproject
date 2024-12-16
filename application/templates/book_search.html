@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input, .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+        #response {
+            margin-top: 20px;
+        }
+        .loading {
+            display: none;
+            font-size: 18px;
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Search Your Data</h1>
+
+    <div class="form-container">
+        <h2>Search</h2>
+        <label for="column">Search by:</label>
+        <select id="column">
+            <option value="title">Title</option>
+            <option value="abstract">Abstract</option>
+            <option value="url">URL</option>
+            <option value="body_text">Body Text</option>
+            <option value="body_html">Body HTML</option>
+        </select>
+        
+        <label for="value">Search Value:</label>
+        <input type="text" id="value" placeholder="Enter search value">
+        
+        <label for="match_type">Match Type:</label>
+        <select id="match_type">
+            <option value="partial">Partial</option>
+            <option value="exact">Exact</option>
+        </select>
+
+        <button onclick="submitSearch()">Search</button>
+
+        <div id="loading" class="loading">Loading...</div>
+        
+    </div>
+    <div id="response"></div>
+
+    <script>
+        function submitSearch() {
+            const column = document.getElementById('column').value;
+            const value = document.getElementById('value').value;
+            const match_type = document.getElementById('match_type').value;
+            const url = `http://20.55.53.44:49153/search/${column}?value=${encodeURIComponent(value)}&match_type=${match_type}`;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('response').innerHTML = '';
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    if (data.error) {
+                        document.getElementById('response').innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    } else if (data.length === 0) {
+                        document.getElementById('response').innerHTML = '<p>No results found.</p>';
+                    } else {
+                        let resultHTML = '<h3>Search Results:</h3><table><thead><tr><th>Title</th><th>URL</th><th>Abstract</th></tr></thead><tbody>';
+                        data.forEach(item => {
+                            resultHTML += `<tr>
+                                              <td><a href="book_details.html?book_id=${item.id}">${item.title || 'N/A'}</a></td>
+                                              <td><a href="${item.url || '#'}" target="_blank">${item.url || 'N/A'}</a></td>
+                                              <td>${item.abstract || 'N/A'}</td>
+                                             </tr>`;
+                        });
+                        resultHTML += '</tbody></table>';
+                        document.getElementById('response').innerHTML = resultHTML;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('response').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                });
+        }
+    </script>
+    
+</body>
+</html>
